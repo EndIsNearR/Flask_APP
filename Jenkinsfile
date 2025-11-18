@@ -15,11 +15,21 @@ pipeline {
             }
         }
         
+        stage('Install Python') {
+            steps {
+                echo 'Installing Python and dependencies...'
+                sh '''
+                    apt-get update -qq
+                    apt-get install -y python3 python3-pip python3-venv
+                    python3 --version
+                '''
+            }
+        }
+        
         stage('Setup Python Environment') {
             steps {
                 echo 'Setting up Python virtual environment...'
                 sh '''
-                    python3 --version
                     python3 -m venv build_env
                     . build_env/bin/activate
                     python -m pip install --upgrade pip
