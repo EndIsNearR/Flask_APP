@@ -12,17 +12,7 @@ pipeline {
                 echo 'Checking out code from GitHub...'
                 checkout scm
                 sh 'ls -la'
-            }
-        }
-        
-        stage('Install Python') {
-            steps {
-                echo 'Installing Python and dependencies...'
-                sh '''
-                    apt-get update -qq
-                    apt-get install -y python3 python3-pip python3-venv
-                    python3 --version
-                '''
+                sh 'python3 --version'
             }
         }
         
