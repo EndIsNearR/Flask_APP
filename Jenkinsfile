@@ -11,17 +11,17 @@ pipeline {
             steps {
                 echo 'Checking out code from GitHub...'
                 checkout scm
-                bat 'dir'
+                sh 'ls -la'
             }
         }
         
         stage('Setup Python Environment') {
             steps {
                 echo 'Setting up Python virtual environment...'
-                bat '''
-                    if exist build_env rmdir /s /q build_env
-                    python -m venv build_env
-                    call build_env\\Scripts\\activate.bat
+                sh '''
+                    python3 --version
+                    python3 -m venv build_env
+                    . build_env/bin/activate
                     python -m pip install --upgrade pip
                 '''
             }
@@ -30,8 +30,8 @@ pipeline {
         stage('Install Dependencies') {
             steps {
                 echo 'Installing project dependencies...'
-                bat '''
-                    call build_env\\Scripts\\activate.bat
+                sh '''
+                    . build_env/bin/activate
                     pip install -r requirements.txt
                 '''
             }
@@ -40,8 +40,8 @@ pipeline {
         stage('Run Tests') {
             steps {
                 echo 'Running tests...'
-                bat '''
-                    call build_env\\Scripts\\activate.bat
+                sh '''
+                    . build_env/bin/activate
                     python -c "print('✓ Tests would run here. Add pytest later!')"
                     python -c "import flask; print('✓ Flask imported successfully')"
                     python -c "from app import app; print('✓ App module imported successfully')"
@@ -52,8 +52,8 @@ pipeline {
         stage('Build Validation') {
             steps {
                 echo 'Validating application build...'
-                bat '''
-                    call build_env\\Scripts\\activate.bat
+                sh '''
+                    . build_env/bin/activate
                     python -c "from app import app; print('✓ Application builds successfully!')"
                     python -c "print('✓ All dependencies are installed correctly')"
                 '''
@@ -63,8 +63,8 @@ pipeline {
         stage('Security Check') {
             steps {
                 echo 'Checking for security vulnerabilities...'
-                bat '''
-                    call build_env\\Scripts\\activate.bat
+                sh '''
+                    . build_env/bin/activate
                     python -c "print('✓ Security checks would run here')"
                 '''
             }
@@ -73,11 +73,11 @@ pipeline {
         stage('Deploy') {
             steps {
                 echo '=== Deployment Stage ==='
-                bat '''
-                    echo ✓ Build artifacts are ready for deployment
-                    echo ✓ Application is ready to be deployed
-                    echo.
-                    echo Note: Configure deployment target (Docker, Cloud, etc.)
+                sh '''
+                    echo "✓ Build artifacts are ready for deployment"
+                    echo "✓ Application is ready to be deployed"
+                    echo ""
+                    echo "Note: Configure deployment target (Docker, Cloud, etc.)"
                 '''
             }
         }
@@ -98,9 +98,9 @@ pipeline {
         }
         always {
             echo 'Cleaning up build environment...'
-            bat '''
-                if exist build_env rmdir /s /q build_env
-                echo ✓ Cleanup completed
+            sh '''
+                rm -rf build_env
+                echo "✓ Cleanup completed"
             '''
         }
     }
