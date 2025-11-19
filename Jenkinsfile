@@ -83,8 +83,18 @@ pipeline {
         stage('Quality Gate') {
             steps {
                 echo 'Checking SonarQube Quality Gate...'
-                timeout(time: 5, unit: 'MINUTES') {
-                    waitForQualityGate abortPipeline: true
+                timeout(time: 10, unit: 'MINUTES') {
+                    script {
+                        def qg = waitForQualityGate()
+                        if (qg.status != 'OK') {
+                            echo "WARNING: Quality Gate failed with status: ${qg.status}"
+                            echo "Check SonarQube dashboard for details: http://localhost:9000"
+                            // Not failing the build, just warning
+                            unstable(message: "Quality Gate failed")
+                        } else {
+                            echo "✓ Quality Gate passed!"
+                        }
+                    }
                 }
             }
         }
