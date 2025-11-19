@@ -60,12 +60,46 @@ pipeline {
             }
         }
         
+        stage('SonarQube Analysis') {
+            steps {
+                echo 'Running SonarQube SAST analysis...'
+                script {
+                    def scannerHome = tool 'SonarQubeScanner'
+                    withSonarQubeEnv('SonarQube') {
+                        sh """
+                            ${scannerHome}/bin/sonar-scanner \
+                            -Dsonar.projectKey=Flask-CRUD-App \
+                            -Dsonar.projectName='Flask CRUD Application' \
+                            -Dsonar.projectVersion=1.0 \
+                            -Dsonar.sources=. \
+                            -Dsonar.python.version=3.13 \
+                            -Dsonar.exclusions=**/env/**,**/build_env/**,**/__pycache__/**,**/static/**,**/instance/**
+                        """
+                    }
+                }
+            }
+        }
+        
+        stage('Quality Gate') {
+            steps {
+                echo 'Checking SonarQube Quality Gate...'
+                timeout(time: 5, unit: 'MINUTES') {
+                    waitForQualityGate abortPipeline: true
+                }
+            }
+        }
+        
         stage('Security Check') {
             steps {
-                echo 'Checking for security vulnerabilities...'
+                echo 'Running additional security checks...'
                 sh '''
                     . build_env/bin/activate
-                    python -c "print('✓ Security checks would run here')"
+                    pip install bandit safety
+                    echo "Running Bandit security linter..."
+                    bandit -r . -f json -o bandit-report.json || true
+                    echo "Running Safety vulnerability check..."
+                    safety check --json || true
+                    echo "✓ Security checks completed"
                 '''
             }
         }
