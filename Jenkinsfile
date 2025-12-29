@@ -5,15 +5,15 @@ pipeline {
         PYTHON_VERSION = '3.9'
         PROJECT_DIR = "${WORKSPACE}"
     }
-    // stages {
-    //     stage('Checkout') {
-    //         steps {
-    //             echo 'Checking out code from GitHub...'
-    //             checkout scm
-    //             sh 'ls -la'
-    //             sh 'python3 --version'
-    //         }
-    //     }
+    stages {
+        stage('Checkout') {
+            steps {
+                echo 'Checking out code from GitHub...'
+                checkout scm
+                sh 'ls -la'
+                sh 'python3 --version'
+            }
+        }
     //     
     //     stage('Setup Python Environment') {
     //         steps {
