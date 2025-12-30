@@ -32,16 +32,17 @@ pipeline {
                 sh '''
                     . build_env/bin/activate
                     pip install -r requirements.txt
+                    pip install pytest
                 '''
             }
         }
         
         stage('Run Tests') {
             steps {
-                echo 'Running tests...'
+                echo 'Running tests with pytest...'
                 sh '''
                     . build_env/bin/activate
-                    python -c "print('✓ Tests would run here. Add pytest later!')"
+                    pytest || exit 1
                     python -c "import flask; print('✓ Flask imported successfully')"
                     python -c "from app import app; print('✓ App module imported successfully')"
                 '''
@@ -85,6 +86,9 @@ pipeline {
                     echo "✓ Application is ready to be deployed"
                     echo ""
                     echo "Note: Configure deployment target (Docker, Cloud, etc.)"
+                    # Restart your service below (customize the service name as needed)
+                    # sudo systemctl restart your_service_name
+                    echo "✓ (Placeholder) Service restart command executed."
                 '''
             }
         }
